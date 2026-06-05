@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>방림 마켓</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FDFAF5;
+  --primary: #E8612A;
+  --primary-light: #FFF0E8;
+  --green: #3DAA72;
+  --green-light: #E6F7EE;
+  --yellow: #F5C842;
+  --blue: #4A90D9;
+  --blue-light: #EAF3FF;
+  --text: #1E1E1E;
+  --muted: #999;
+  --card: #FFFFFF;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --radius: 22px;
+  --radius-sm: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nanum Gothic', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* SCREENS */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* TOPBAR */
+.topbar {
+  background: white;
+  border-bottom: 1.5px solid #F0EDE8;
+  padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-family: 'Jua', sans-serif; font-size: 1.25rem; color: var(--text); }
+.btn-back {
+  background: #F5F2EE; border: none; color: var(--text);
+  font-family: 'Jua', sans-serif; font-size: 0.9rem;
+  padding: 8px 16px; border-radius: 30px; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-back:active { opacity: 0.7; }
+
+/* ── SCREEN: HOME ── */
+#screen-home { background: var(--bg); }
+.home-hero {
+  background: linear-gradient(145deg, #E8612A 0%, #F5A054 60%, #F9C97C 100%);
+  padding: 44px 24px 60px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.home-hero::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 40px; background: var(--bg);
+  border-radius: 50% 50% 0 0 / 40px 40px 0 0;
+}
+.hero-icon { font-size: 4rem; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.hero-title { font-family: 'Jua', sans-serif; font-size: 2.8rem; color: white; text-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+.hero-sub { color: rgba(255,255,255,0.85); font-size: 1rem; margin-top: 6px; font-weight: 700; }
+
+.home-menu { padding: 20px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.menu-card {
+  background: white; border-radius: var(--radius); padding: 26px 16px;
+  text-align: center; cursor: pointer; box-shadow: var(--shadow);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  border: 2px solid transparent;
+}
+.menu-card:active { transform: scale(0.96); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.menu-card.buy { border-color: #FFE8D8; }
+.menu-card.admin { border-color: #E8F5FF; }
+.menu-emoji { font-size: 2.8rem; }
+.menu-label { font-family: 'Jua', sans-serif; font-size: 1.1rem; }
+.menu-desc { font-size: 0.72rem; color: var(--muted); }
+
+/* ── SCREEN: SELLER SELECT ── */
+#screen-sellers { background: #FFF8F3; }
+.seller-intro { padding: 20px 18px 10px; }
+.seller-intro-title { font-family: 'Jua', sans-serif; font-size: 1.4rem; margin-bottom: 4px; }
+.seller-intro-sub { font-size: 0.85rem; color: var(--muted); }
+.seller-grid { padding: 10px 18px 24px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; flex: 1; }
+.seller-card {
+  background: white; border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2.5px solid transparent;
+  display: flex; flex-direction: column; align-items: center;
+}
+.seller-card:active { transform: scale(0.96); }
+.seller-card.selected { border-color: var(--primary); }
+.seller-photo {
+  width: 100%; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem;
+  position: relative; overflow: hidden;
+}
+.seller-photo img { width: 100%; height: 100%; object-fit: cover; }
+.seller-photo-placeholder {
+  width: 100%; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4.5rem;
+}
+.seller-info { width: 100%; padding: 12px 14px 14px; text-align: center; }
+.seller-name { font-family: 'Jua', sans-serif; font-size: 1.15rem; }
+.seller-items-count { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.seller-card-selected-badge {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--primary); color: white;
+  font-family: 'Jua', sans-serif; font-size: 0.7rem;
+  padding: 3px 10px; border-radius: 20px;
+  display: none;
+}
+.seller-card.selected .seller-card-selected-badge { display: block; }
+
+.btn-next-fixed {
+  position: sticky; bottom: 0;
+  background: white; border-top: 1.5px solid #F0EDE8;
+  padding: 14px 18px;
+}
+.btn-next {
+  width: 100%; background: linear-gradient(135deg, var(--primary), #F5833A);
+  color: white; font-family: 'Jua', sans-serif; font-size: 1.2rem;
+  border: none; border-radius: 50px; padding: 16px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(232,97,42,0.35);
+  transition: transform 0.15s;
+}
+.btn-next:active { transform: scale(0.97); }
+.btn-next:disabled { background: #DDD; box-shadow: none; cursor: not-allowed; }
+
+/* ── SCREEN: PRODUCTS ── */
+#screen-products { background: var(--bg); }
+.selected-seller-bar {
+  background: var(--primary-light); padding: 12px 18px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1.5px solid #FFD8C4;
+}
+.ssb-emoji { font-size: 1.6rem; }
+.ssb-name { font-family: 'Jua', sans-serif; font-size: 1rem; color: var(--primary); }
+.ssb-sub { font-size: 0.75rem; color: #C05A2A; }
+
+.product-grid { padding: 14px 18px; display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; flex: 1; }
+.product-card {
+  background: white; border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: transform 0.15s; position: relative;
+  border: 2px solid transparent;
+}
+.product-card:active { transform: scale(0.96); }
+.product-card.in-cart { border-color: var(--green); }
+.product-card.sold { opacity: 0.5; pointer-events: none; }
+.product-img {
+  width: 100%; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; background: linear-gradient(135deg, #FFF5EE, #FFE8D8);
+  position: relative; overflow: hidden;
+}
+.product-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.product-info { padding: 10px 12px 13px; }
+.product-name { font-family: 'Jua', sans-serif; font-size: 0.97rem; line-height: 1.3; }
+.product-desc { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.cart-badge-float {
+  position: absolute; top: 8px; left: 8px;
+  background: var(--green); color: white;
+  font-family: 'Jua', sans-serif; font-size: 0.7rem;
+  padding: 3px 10px; border-radius: 20px;
+  display: none;
+}
+.product-card.in-cart .cart-badge-float { display: block; }
+.sold-badge {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.5); color: white;
+  font-family: 'Jua', sans-serif; font-size: 0.7rem;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+.cart-bar {
+  background: white; border-top: 1.5px solid #F0EDE8; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.cart-summary { font-family: 'Jua', sans-serif; font-size: 0.95rem; color: var(--green); }
+.btn-cart {
+  flex: 1; background: linear-gradient(135deg, var(--green), #52C98A);
+  color: white; font-family: 'Jua', sans-serif; font-size: 1.1rem;
+  border: none; border-radius: 50px; padding: 14px; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(61,170,114,0.3);
+}
+.btn-cart:disabled { background: #DDD; box-shadow: none; cursor: not-allowed; }
+
+/* ── SCREEN: CART ── */
+#screen-cart { background: var(--bg); }
+.cart-list { flex: 1; padding: 14px 18px; overflow-y: auto; }
+.cart-item {
+  background: white; border-radius: var(--radius-sm); padding: 14px 16px;
+  display: flex; align-items: center; gap: 13px;
+  margin-bottom: 10px; box-shadow: var(--shadow);
+}
+.cart-item-emoji { font-size: 2.2rem; min-width: 44px; text-align: center; }
+.cart-item-body { flex: 1; }
+.cart-item-name { font-family: 'Jua', sans-serif; font-size: 0.95rem; }
+.cart-item-seller { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.btn-remove {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: #FFE8E8; color: #D94A4A; font-size: 1rem; cursor: pointer;
+}
+
+.checkout-panel {
+  background: white; border-top: 1.5px solid #F0EDE8; padding: 18px 18px 22px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+}
+.btn-checkout {
+  width: 100%; background: linear-gradient(135deg, var(--primary), #F5833A);
+  color: white; font-family: 'Jua', sans-serif; font-size: 1.2rem;
+  border: none; border-radius: 50px; padding: 16px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(232,97,42,0.35);
+}
+
+/* ── SCREEN: RECEIPT ── */
+#screen-receipt {
+  background: linear-gradient(160deg, #3DAA72 0%, #52C98A 100%);
+  align-items: center; justify-content: center; padding: 24px 18px;
+}
+.receipt-wrap {
+  background: white; border-radius: 24px; width: 100%; max-width: 400px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15); overflow: hidden;
+}
+.receipt-header {
+  background: linear-gradient(135deg, #E8612A, #F5A054);
+  padding: 22px 24px 18px; text-align: center;
+}
+.receipt-header-title { font-family: 'Jua', sans-serif; font-size: 1.6rem; color: white; }
+.receipt-header-sub { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-top: 2px; }
+.receipt-body { padding: 20px 24px; }
+
+/* Printable receipt preview */
+.receipt-print-preview {
+  border: 2px dashed #E0E0E0; border-radius: 14px;
+  padding: 20px 18px; margin-bottom: 16px; background: #FAFAFA;
+  font-family: 'Courier New', monospace; font-size: 0.85rem;
+}
+.rp-center { text-align: center; }
+.rp-bold { font-weight: 700; }
+.rp-big { font-size: 1.1rem; font-weight: 700; }
+.rp-line { border: none; border-top: 1.5px dashed #CCC; margin: 8px 0; }
+.rp-row { display: flex; justify-content: space-between; padding: 2px 0; }
+.rp-buyer-box {
+  border: 1.5px solid #333; border-radius: 6px; padding: 8px 10px; margin: 8px 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.rp-buyer-field { font-size: 0.8rem; }
+.rp-buyer-label { color: #666; margin-bottom: 2px; font-size: 0.72rem; }
+.rp-buyer-value { font-weight: 700; }
+
+.receipt-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-rec {
+  padding: 14px; border-radius: 50px; font-family: 'Jua', sans-serif;
+  font-size: 1rem; border: none; cursor: pointer; transition: transform 0.15s;
+}
+.btn-rec:active { transform: scale(0.96); }
+.btn-print-rec { background: var(--text); color: white; }
+.btn-done-rec { background: var(--green); color: white; }
+
+/* ── SCREEN: ADMIN ── */
+#screen-admin { background: #F0F6FF; }
+.admin-tabs { display: flex; padding: 14px 18px 0; gap: 8px; }
+.admin-tab {
+  flex: 1; padding: 10px; border-radius: 12px 12px 0 0;
+  font-family: 'Jua', sans-serif; font-size: 0.9rem;
+  border: none; cursor: pointer; background: #DDE9FF; color: #3A6DAA;
+  transition: all 0.15s;
+}
+.admin-tab.active { background: white; color: var(--primary); box-shadow: 0 -3px 10px rgba(0,0,0,0.05); }
+.admin-content { flex: 1; overflow-y: auto; }
+.admin-panel { display: none; padding: 16px 18px 24px; background: white; min-height: 100%; }
+.admin-panel.active { display: block; }
+
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+.form-input {
+  width: 100%; border: 2px solid #EAEAEA; border-radius: 12px;
+  padding: 10px 14px; font-family: 'Nanum Gothic', sans-serif; font-size: 0.95rem; outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--blue); }
+
+.emoji-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; margin-top: 6px; }
+.emoji-opt {
+  font-size: 1.5rem; text-align: center; padding: 7px; border-radius: 10px;
+  cursor: pointer; border: 2px solid transparent; transition: all 0.15s;
+}
+.emoji-opt.sel { border-color: var(--blue); background: var(--blue-light); }
+
+.photo-upload-area {
+  border: 2.5px dashed #D0DCF0; border-radius: 14px; padding: 20px;
+  text-align: center; cursor: pointer; transition: border-color 0.2s; margin-top: 6px;
+  position: relative;
+}
+.photo-upload-area:hover { border-color: var(--blue); }
+.photo-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-preview { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin: 0 auto 8px; display: block; }
+.photo-upload-text { font-size: 0.82rem; color: var(--muted); }
+
+.section-title { font-family: 'Jua', sans-serif; font-size: 1rem; margin-bottom: 12px; color: var(--blue); }
+.btn-add {
+  width: 100%; background: linear-gradient(135deg, var(--blue), #5AA0E8);
+  color: white; font-family: 'Jua', sans-serif; font-size: 1.05rem;
+  border: none; border-radius: 50px; padding: 14px; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(74,144,217,0.3); margin-top: 4px;
+}
+
+.manage-list { margin-top: 14px; }
+.manage-item {
+  background: #F8FAFF; border-radius: 14px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+  border: 1.5px solid #E8EFF8;
+}
+.manage-thumb {
+  width: 44px; height: 44px; border-radius: 10px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; background: #EEF3FF; flex-shrink: 0;
+}
+.manage-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.manage-info { flex: 1; }
+.manage-name { font-family: 'Jua', sans-serif; font-size: 0.9rem; }
+.manage-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.btn-del {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: #FFE8E8; color: #D94A4A; font-size: 0.95rem; cursor: pointer;
+}
+.toggle-sold {
+  font-size: 0.72rem; font-family: 'Jua', sans-serif;
+  padding: 4px 10px; border-radius: 20px; border: none; cursor: pointer;
+  transition: all 0.15s;
+}
+.toggle-sold.available { background: var(--green-light); color: var(--green); }
+.toggle-sold.sold { background: #FFE8E8; color: #D94A4A; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: flex-end; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-sheet {
+  background: white; border-radius: 28px 28px 0 0; width: 100%; max-width: 500px;
+  padding: 28px 24px 36px; animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-handle { width: 40px; height: 4px; background: #E0E0E0; border-radius: 2px; margin: 0 auto 20px; }
+.modal-emoji { font-size: 3rem; text-align: center; margin-bottom: 8px; }
+.modal-title { font-family: 'Jua', sans-serif; font-size: 1.3rem; text-align: center; margin-bottom: 6px; }
+.modal-desc { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 22px; white-space: pre-line; }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-btn { padding: 14px; border-radius: 50px; font-family: 'Jua', sans-serif; font-size: 1rem; border: none; cursor: pointer; }
+.modal-btn.yes { background: var(--primary); color: white; }
+.modal-btn.no { background: #F0F0F0; color: var(--text); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px);
+  background: #1E1E1E; color: white; font-family: 'Jua', sans-serif; font-size: 0.95rem;
+  padding: 12px 22px; border-radius: 50px; z-index: 500; transition: transform 0.3s; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* EMPTY */
+.empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--muted); padding:40px; text-align:center; }
+.empty span { font-size:3.5rem; opacity:0.4; }
+.empty p { font-family:'Jua',sans-serif; font-size:1.05rem; }
+
+/* PIN PAD */
+.pw-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2.5px solid #CCC; background: white;
+  transition: all 0.15s;
+}
+.pw-dot.filled { background: var(--primary); border-color: var(--primary); }
+.pin-btn {
+  background: #F5F2EE; border: none; border-radius: 16px;
+  font-family: 'Jua', sans-serif; font-size: 1.4rem; color: var(--text);
+  padding: 18px 10px; cursor: pointer; transition: all 0.1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.pin-btn:active { transform: scale(0.93); background: #EAEAEA; }
+.pin-clear { font-size: 0.85rem; background: #FFF0E8; color: var(--primary); }
+.pin-cancel { font-size: 0.85rem; background: #F0F0F0; color: #888; }
+
+/* PRINT STYLES */
+@media print {
+  body * { visibility: hidden !important; }
+  #print-area, #print-area * { visibility: visible !important; }
+  #print-area {
+    position: fixed !important; top: 0 !important; left: 0 !important;
+    width: 80mm !important; padding: 4mm !important;
+    font-family: 'Courier New', monospace !important; font-size: 11pt !important;
+    background: white !important; color: black !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <span class="hero-icon">🏪</span>
+    <div class="hero-title">방림 마켓</div>
+    <div class="hero-sub">우리가 만든 것들을 팔아요!</div>
+  </div>
+  <div class="home-menu">
+    <div class="menu-card buy" onclick="go('screen-sellers')">
+      <span class="menu-emoji">🛍️</span>
+      <span class="menu-label">물건 사기</span>
+      <span class="menu-desc">파는 사람을 골라요</span>
+    </div>
+    <div class="menu-card admin" onclick="openAdminLogin()">
+      <span class="menu-emoji">⚙️</span>
+      <span class="menu-label">관리하기</span>
+      <span class="menu-desc">선생님 전용 🔒</span>
+    </div>
+  </div>
+</div>
+
+<!-- SELLER SELECT -->
+<div id="screen-sellers" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="go('screen-home')">← 홈</button>
+    <span class="topbar-title">누구 가게에 갈까요? 🏪</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="seller-intro">
+    <div class="seller-intro-title">파는 사람을 골라요</div>
+    <div class="seller-intro-sub">가게를 탭하면 상품을 볼 수 있어요</div>
+  </div>
+  <div class="seller-grid" id="seller-grid"></div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="screen-products" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="go('screen-sellers')">← 뒤로</button>
+    <span class="topbar-title" id="products-topbar-title">상품 보기</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="selected-seller-bar" id="selected-seller-bar"></div>
+  <div class="product-grid" id="product-grid"></div>
+  <div class="cart-bar">
+    <span class="cart-summary" id="cart-summary">0개 담김</span>
+    <button class="btn-cart" id="btn-go-cart" onclick="go('screen-cart')" disabled>장바구니 보기 🛒</button>
+  </div>
+</div>
+
+<!-- CART -->
+<div id="screen-cart" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="go('screen-products')">← 뒤로</button>
+    <span class="topbar-title">장바구니 🛒</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="cart-list" id="cart-list"></div>
+  <div class="checkout-panel">
+    <button class="btn-checkout" onclick="checkout()">🧾 결제하고 영수증 받기</button>
+  </div>
+</div>
+
+<!-- RECEIPT -->
+<div id="screen-receipt" class="screen">
+  <div class="receipt-wrap">
+    <div class="receipt-header">
+      <div class="receipt-header-title">🧾 구매 완료!</div>
+      <div class="receipt-header-sub" id="receipt-datetime"></div>
+    </div>
+    <div class="receipt-body">
+      <div class="receipt-print-preview" id="receipt-print-preview">
+        <!-- rendered by JS -->
+      </div>
+      <div class="receipt-btns">
+        <button class="btn-rec btn-print-rec" onclick="printReceipt()">🖨️ 프린터 출력</button>
+        <button class="btn-rec btn-done-rec" onclick="go('screen-home'); resetCart();">✅ 완료</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="go('screen-home')">← 홈</button>
+    <span class="topbar-title">관리자 화면 ⚙️</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab('tab-sellers')">판매자</button>
+    <button class="admin-tab" onclick="switchTab('tab-products')">상품</button>
+    <button class="admin-tab" onclick="switchTab('tab-settings')">설정</button>
+  </div>
+  <div class="admin-content">
+
+    <!-- TAB: SELLERS -->
+    <div id="tab-sellers" class="admin-panel active">
+      <div class="section-title">새 판매자 추가</div>
+      <div class="form-group">
+        <label class="form-label">이름</label>
+        <input class="form-input" id="s-name" placeholder="예: 이수아" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">사진 (선택)</label>
+        <div class="photo-upload-area" id="seller-photo-area" onclick="document.getElementById('seller-photo-input').click()">
+          <img id="seller-photo-preview" class="photo-preview" style="display:none" />
+          <div class="photo-upload-text" id="seller-photo-text">📷 사진을 탭해서 올려요</div>
+          <input type="file" id="seller-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'seller-photo-preview','seller-photo-text')" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">또는 이모지 선택</label>
+        <div class="emoji-grid" id="seller-emoji-grid"></div>
+      </div>
+      <button class="btn-add" onclick="addSeller()">➕ 판매자 등록</button>
+
+      <div class="manage-list" id="seller-manage-list"></div>
+    </div>
+
+    <!-- TAB: PRODUCTS -->
+    <div id="tab-products" class="admin-panel">
+      <div class="section-title">새 상품 추가</div>
+      <div class="form-group">
+        <label class="form-label">판매자 선택</label>
+        <select class="form-input" id="p-seller"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">상품 이름</label>
+        <input class="form-input" id="p-name" placeholder="예: 나뭇잎 그림" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">설명 (선택)</label>
+        <input class="form-input" id="p-desc" placeholder="예: 색종이로 만들었어요" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">사진 (선택)</label>
+        <div class="photo-upload-area" onclick="document.getElementById('product-photo-input').click()">
+          <img id="product-photo-preview" class="photo-preview" style="display:none" />
+          <div class="photo-upload-text" id="product-photo-text">📷 상품 사진을 올려요</div>
+          <input type="file" id="product-photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this,'product-photo-preview','product-photo-text')" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">또는 이모지 선택</label>
+        <div class="emoji-grid" id="product-emoji-grid"></div>
+      </div>
+      <button class="btn-add" onclick="addProduct()">➕ 상품 등록</button>
+      <div class="manage-list" id="product-manage-list"></div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="tab-settings" class="admin-panel">
+      <div class="section-title">🏪 가게 이름</div>
+      <div class="form-group">
+        <label class="form-label">키오스크 상단에 표시되는 이름</label>
+        <input class="form-input" id="cfg-market-name" placeholder="예: 방림 마켓" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">부제목 (홈 화면)</label>
+        <input class="form-input" id="cfg-market-sub" placeholder="예: 우리가 만든 것들을 팔아요!" />
+      </div>
+
+      <div class="section-title" style="margin-top:22px;">🧾 영수증 문구</div>
+      <div class="form-group">
+        <label class="form-label">영수증 상단 가게 이름</label>
+        <input class="form-input" id="cfg-receipt-title" placeholder="예: 방림 마켓" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">영수증 하단 마무리 문구</label>
+        <input class="form-input" id="cfg-receipt-footer" placeholder="예: 감사합니다! 🎉" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">영수증 하단 유치원·반 이름</label>
+        <input class="form-input" id="cfg-receipt-school" placeholder="예: 방림유치원 산내음반" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">손글씨 칸 안내 문구</label>
+        <input class="form-input" id="cfg-receipt-writehint" placeholder="예: ✏️ 출력 후 아래 칸에 직접 써요!" />
+      </div>
+
+      <div class="section-title" style="margin-top:22px;">🔒 비밀번호 변경</div>
+      <div class="form-group">
+        <label class="form-label">현재 비밀번호</label>
+        <input class="form-input" id="cfg-pw-old" type="password" placeholder="현재 비밀번호" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">새 비밀번호</label>
+        <input class="form-input" id="cfg-pw-new" type="password" placeholder="새 비밀번호 (숫자 4자리)" maxlength="4" />
+      </div>
+
+      <button class="btn-add" style="background:linear-gradient(135deg,#3DAA72,#52C98A);box-shadow:0 3px 12px rgba(61,170,114,0.3);" onclick="saveSettings()">💾 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-emoji" id="modal-emoji">🛒</div>
+    <div class="modal-title" id="modal-title">담을까요?</div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-btns" id="modal-btns">
+      <button class="modal-btn no" onclick="closeModal()">아니요</button>
+      <button class="modal-btn yes" id="modal-yes">네!</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA (hidden, print only) -->
+<div id="print-area" style="display:none"></div>
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" id="pw-modal">
+  <div class="modal-sheet" style="text-align:center;">
+    <div class="modal-handle"></div>
+    <div style="font-size:2.5rem;margin-bottom:8px;">🔒</div>
+    <div style="font-family:'Jua',sans-serif;font-size:1.3rem;margin-bottom:4px;">선생님 전용 공간이에요</div>
+    <div style="font-size:0.85rem;color:#999;margin-bottom:22px;">비밀번호 4자리를 눌러요</div>
+    <!-- 입력 표시 -->
+    <div id="pw-dots" style="display:flex;justify-content:center;gap:14px;margin-bottom:24px;">
+      <div class="pw-dot"></div><div class="pw-dot"></div><div class="pw-dot"></div><div class="pw-dot"></div>
+    </div>
+    <!-- 숫자패드 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;">
+      <button class="pin-btn" onclick="pinInput('1')">1</button>
+      <button class="pin-btn" onclick="pinInput('2')">2</button>
+      <button class="pin-btn" onclick="pinInput('3')">3</button>
+      <button class="pin-btn" onclick="pinInput('4')">4</button>
+      <button class="pin-btn" onclick="pinInput('5')">5</button>
+      <button class="pin-btn" onclick="pinInput('6')">6</button>
+      <button class="pin-btn" onclick="pinInput('7')">7</button>
+      <button class="pin-btn" onclick="pinInput('8')">8</button>
+      <button class="pin-btn" onclick="pinInput('9')">9</button>
+      <button class="pin-btn pin-clear" onclick="pinClear()">지우기</button>
+      <button class="pin-btn" onclick="pinInput('0')">0</button>
+      <button class="pin-btn pin-cancel" onclick="closePwModal()">취소</button>
+    </div>
+    <div id="pw-error" style="color:#E8612A;font-family:'Jua',sans-serif;font-size:0.9rem;margin-top:14px;min-height:22px;"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const SELLER_EMOJIS = ['👦','👧','🧒','👶','🎨','⭐','🌸','🦋','🌈','🍀','🎠','🧸'];
+const PRODUCT_EMOJIS = ['🖼️','🧸','🌸','🌿','⭐','🎀','🎁','🧶','📦','🪆','🌈','🎠','🦋','🐝','🌻','🧁','🍡','🎨','🪵','🌙'];
+
+let state = {
+  sellers: [],
+  products: [],
+  cart: [],        // [{productId, sellerId}]
+  receipt: null,
+  selSellerEmoji: '👦',
+  selProductEmoji: '🖼️',
+  sellerPhotoData: null,
+  productPhotoData: null,
+  settings: {
+    adminPw: '1234',
+    marketName: '방림 마켓',
+    marketSub: '우리가 만든 것들을 팔아요!',
+    receiptTitle: '방림 마켓',
+    receiptFooter: '감사합니다! 🎉',
+    receiptSchool: '방림유치원 산내음반',
+    receiptWriteHint: '✏️ 출력 후 아래 칸에 직접 써요!',
+  },
+};
+
+// ── PERSIST ──
+function save() {
+  try {
+    localStorage.setItem('bm2', JSON.stringify({
+      sellers: state.sellers,
+      products: state.products,
+      settings: state.settings,
+    }));
+  } catch(e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('bm2') || 'null');
+    if (d) {
+      state.sellers = d.sellers || [];
+      state.products = d.products || [];
+      if (d.settings) state.settings = Object.assign(state.settings, d.settings);
+    }
+  } catch(e) {}
+  if (!state.sellers.length) seedDemo();
+  applySettings();
+}
+function applySettings() {
+  const s = state.settings;
+  // 홈 화면
+  const titleEl = document.querySelector('.hero-title');
+  const subEl = document.querySelector('.hero-sub');
+  if (titleEl) titleEl.textContent = s.marketName;
+  if (subEl) subEl.textContent = s.marketSub;
+}
+function seedDemo() {
+  state.sellers = [
+    { id: 1, name: '이수아', emoji: '👧', photo: null },
+    { id: 2, name: '김민준', emoji: '👦', photo: null },
+    { id: 3, name: '박지유', emoji: '🧒', photo: null },
+  ];
+  state.products = [
+    { id: 101, sellerId: 1, name: '나뭇잎 그림', desc: '색종이로 만들었어요', emoji: '🖼️', photo: null, sold: false },
+    { id: 102, sellerId: 1, name: '종이접기 꽃', desc: '', emoji: '🌸', photo: null, sold: false },
+    { id: 103, sellerId: 2, name: '점토 컵', desc: '손으로 빚었어요', emoji: '🧸', photo: null, sold: false },
+    { id: 104, sellerId: 3, name: '풀잎 책갈피', desc: '', emoji: '🌿', photo: null, sold: false },
+  ];
+  save();
+}
+
+// ── NAVIGATION ──
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-sellers') renderSellers();
+  if (id === 'screen-admin') { renderAdminSellers(); renderAdminProducts(); renderSellerSelect(); loadSettingsForm(); }
+  updateCartUI();
+}
+
+// ── SELLERS SCREEN ──
+function renderSellers() {
+  const grid = document.getElementById('seller-grid');
+  if (!state.sellers.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><span>🏪</span><p>판매자를 먼저 등록해주세요</p></div>';
+    return;
+  }
+  grid.innerHTML = state.sellers.map(s => {
+    const items = state.products.filter(p => p.sellerId === s.id && !p.sold).length;
+    const photoHTML = s.photo
+      ? `<img src="${s.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:0;" />`
+      : `<span style="font-size:4.5rem">${s.emoji}</span>`;
+    return `
+      <div class="seller-card" onclick="selectSeller(${s.id})">
+        <div class="seller-photo">${photoHTML}</div>
+        <div class="seller-info">
+          <div class="seller-name">${s.name}</div>
+          <div class="seller-items-count">상품 ${items}개 있어요</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function selectSeller(sellerId) {
+  const seller = state.sellers.find(s => s.id === sellerId);
+  if (!seller) return;
+
+  // Update topbar & seller bar
+  document.getElementById('products-topbar-title').textContent = `${seller.name}의 가게`;
+  const bar = document.getElementById('selected-seller-bar');
+  bar.innerHTML = `
+    <span class="ssb-emoji">${seller.photo ? `<img src="${seller.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">` : seller.emoji}</span>
+    <div>
+      <div class="ssb-name">${seller.name}의 가게</div>
+      <div class="ssb-sub">상품을 탭해서 장바구니에 담아요</div>
+    </div>`;
+
+  renderProducts(sellerId);
+  go('screen-products');
+}
+
+// ── PRODUCTS SCREEN ──
+function renderProducts(sellerId) {
+  const grid = document.getElementById('product-grid');
+  const items = state.products.filter(p => p.sellerId === sellerId);
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><span>📭</span><p>등록된 상품이 없어요</p></div>';
+    return;
+  }
+  grid.innerHTML = items.map(p => {
+    const inCart = state.cart.some(c => c.productId === p.id);
+    const imgHTML = p.photo
+      ? `<img src="${p.photo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`
+      : `<span style="font-size:4rem;position:relative;z-index:1">${p.emoji}</span>`;
+    return `
+      <div class="product-card ${inCart ? 'in-cart' : ''} ${p.sold ? 'sold' : ''}" onclick="toggleCart(${p.id})">
+        <div class="product-img">${imgHTML}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          ${p.desc ? `<div class="product-desc">${p.desc}</div>` : ''}
+        </div>
+        <div class="cart-badge-float">담김 ✓</div>
+        ${p.sold ? '<div class="sold-badge">품절</div>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function toggleCart(productId) {
+  const p = state.products.find(x => x.id === productId);
+  if (!p || p.sold) return;
+  const idx = state.cart.findIndex(c => c.productId === productId);
+  if (idx >= 0) {
+    state.cart.splice(idx, 1);
+    showToast('장바구니에서 뺐어요');
+  } else {
+    state.cart.push({ productId, sellerId: p.sellerId });
+    showToast('장바구니에 담았어요! 🛒');
+  }
+  // re-render products for current seller
+  const seller = state.sellers.find(s => s.id === p.sellerId);
+  if (seller) renderProducts(seller.id);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const cnt = state.cart.length;
+  const el = document.getElementById('cart-summary');
+  const btn = document.getElementById('btn-go-cart');
+  if (el) el.textContent = `${cnt}개 담김`;
+  if (btn) btn.disabled = cnt === 0;
+}
+
+// ── CART SCREEN ──
+function renderCart() {
+  const list = document.getElementById('cart-list');
+  if (!state.cart.length) {
+    list.innerHTML = '<div class="empty"><span>🛒</span><p>장바구니가 비어있어요</p></div>';
+    return;
+  }
+  list.innerHTML = state.cart.map(c => {
+    const p = state.products.find(x => x.id === c.productId);
+    const s = state.sellers.find(x => x.id === c.sellerId);
+    if (!p || !s) return '';
+    return `
+      <div class="cart-item">
+        <div class="cart-item-emoji">${p.photo ? `<img src="${p.photo}" style="width:44px;height:44px;border-radius:10px;object-fit:cover">` : p.emoji}</div>
+        <div class="cart-item-body">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-seller">${s.name}의 가게</div>
+        </div>
+        <button class="btn-remove" onclick="removeFromCart(${p.id})">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function removeFromCart(productId) {
+  state.cart = state.cart.filter(c => c.productId !== productId);
+  renderCart();
+  updateCartUI();
+}
+
+function checkout() {
+  if (!state.cart.length) { showToast('장바구니가 비어있어요!'); return; }
+
+  const items = state.cart.map(c => {
+    const p = state.products.find(x => x.id === c.productId);
+    const s = state.sellers.find(x => x.id === c.sellerId);
+    return { name: p.name, emoji: p.emoji, sellerName: s.name, productId: p.id };
+  });
+
+  const now = new Date();
+  state.receipt = { items, datetime: now };
+
+  // Mark sold
+  state.cart.forEach(c => {
+    const p = state.products.find(x => x.id === c.productId);
+    if (p) p.sold = true;
+  });
+  save();
+
+  renderReceipt();
+  go('screen-receipt');
+}
+
+function resetCart() {
+  state.cart = [];
+  updateCartUI();
+}
+
+// ── RECEIPT ──
+function renderReceipt() {
+  const r = state.receipt;
+  if (!r) return;
+  const cfg = state.settings;
+
+  const pad = n => String(n).padStart(2,'0');
+  const dt = r.datetime;
+  const dateStr = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  document.getElementById('receipt-datetime').textContent = dateStr;
+
+  const itemRows = r.items.map(i =>
+    `<div class="rp-row"><span>${i.emoji} ${i.name}</span><span style="color:#888;font-size:0.8em;">${i.sellerName}</span></div>`
+  ).join('');
+
+  const preview = `
+    <div class="rp-center rp-bold rp-big">🏪 ${cfg.receiptTitle}</div>
+    <div class="rp-center" style="font-size:0.72rem;color:#999;margin-top:3px;">${dateStr}</div>
+    <hr class="rp-line">
+    <div style="font-size:0.75rem;color:#888;margin-bottom:6px;">구매 목록</div>
+    ${itemRows}
+    <hr class="rp-line">
+    <div class="rp-center" style="font-size:0.78rem;color:#aaa;margin-bottom:10px;">${cfg.receiptFooter}  ${cfg.receiptSchool}</div>
+    <div style="border:2px dashed #FBBC2A;border-radius:10px;padding:12px 10px;background:#FFFDE8;">
+      <div style="font-size:0.72rem;color:#B8860B;font-weight:700;margin-bottom:8px;text-align:center;">${cfg.receiptWriteHint}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:white;border-radius:8px;border:1.5px solid #F5C842;padding:8px 10px;">
+          <div style="font-size:0.68rem;color:#999;margin-bottom:18px;">👤 이름</div>
+          <div style="height:2px;background:#DDD;border-radius:1px;"></div>
+        </div>
+        <div style="background:white;border-radius:8px;border:1.5px solid #F5C842;padding:8px 10px;">
+          <div style="font-size:0.68rem;color:#999;margin-bottom:18px;">🏫 반</div>
+          <div style="height:2px;background:#DDD;border-radius:1px;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('receipt-print-preview').innerHTML = preview;
+
+  document.getElementById('print-area').innerHTML = `
+    <div style="width:72mm;font-family:'Courier New',monospace;font-size:10pt;padding:4mm;line-height:1.5;">
+      <div style="text-align:center;font-size:14pt;font-weight:700;">${cfg.receiptTitle}</div>
+      <div style="text-align:center;font-size:8pt;color:#555;">${dateStr}</div>
+      <div style="border-top:1.5px dashed #000;margin:6px 0;"></div>
+      <div style="font-size:8pt;color:#555;margin-bottom:4px;">구매 목록</div>
+      ${r.items.map(i =>
+        `<div style="display:flex;justify-content:space-between;font-size:9pt;padding:1px 0;">
+          <span>${i.name}</span><span style="color:#666;">${i.sellerName}</span>
+        </div>`).join('')}
+      <div style="border-top:1.5px dashed #000;margin:6px 0;"></div>
+      <div style="text-align:center;font-size:9pt;">${cfg.receiptFooter}</div>
+      <div style="text-align:center;font-size:8pt;color:#777;">${cfg.receiptSchool}</div>
+      <div style="border:1.5px solid #000;margin-top:10px;border-radius:4px;padding:6px 8px;">
+        <div style="text-align:center;font-size:7pt;color:#555;margin-bottom:8px;">${cfg.receiptWriteHint}</div>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:3px;min-height:28px;">
+            <div style="font-size:7pt;color:#999;">이름</div><div style="height:16px;"></div>
+          </div>
+          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:3px;min-height:28px;">
+            <div style="font-size:7pt;color:#999;">반</div><div style="height:16px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function printReceipt() {
+  if ('bluetooth' in navigator) {
+    const useBT = await new Promise(resolve => {
+      showModal('🖨️', '출력 방법을 선택해요', '블루투스 프린터로 출력할까요?\n아니면 브라우저 인쇄창을 쓸까요?',
+        () => resolve(true), () => resolve(false),
+        '블루투스', '브라우저 인쇄');
+    });
+    if (useBT) { await btPrint(); return; }
+  }
+  printViaNewTab();
+}
+
+function printViaNewTab() {
+  const r = state.receipt;
+  const cfg = state.settings;
+  if (!r) return;
+
+  const pad = n => String(n).padStart(2,'0');
+  const dt = r.datetime;
+  const dateStr = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+
+  const itemRows = r.items.map(i =>
+    `<div style="display:flex;justify-content:space-between;font-size:12pt;padding:3px 0;">
+      <span>${i.name}</span><span style="color:#666;">${i.sellerName}</span>
+    </div>`).join('');
+
+  // 현재 페이지 body를 인쇄용으로 교체 후 print, 그다음 복원
+  const originalBody = document.body.innerHTML;
+  const originalTitle = document.title;
+
+  document.title = '영수증';
+  document.body.innerHTML = `
+    <div style="font-family:'Courier New',monospace;font-size:11pt;color:black;background:white;
+                max-width:80mm;margin:0;padding:4mm;line-height:1.6;">
+      <div style="text-align:center;font-size:15pt;font-weight:700;">${cfg.receiptTitle}</div>
+      <div style="text-align:center;font-size:9pt;color:#555;margin-top:2px;">${dateStr}</div>
+      <div style="border-top:1.5px dashed #000;margin:7px 0;"></div>
+      <div style="font-size:9pt;color:#555;margin-bottom:4px;">구매 목록</div>
+      ${itemRows}
+      <div style="border-top:1.5px dashed #000;margin:7px 0;"></div>
+      <div style="text-align:center;font-size:10pt;">${cfg.receiptFooter}</div>
+      <div style="text-align:center;font-size:9pt;color:#777;">${cfg.receiptSchool}</div>
+      <div style="border:1.5px solid #000;margin-top:12px;border-radius:3px;padding:6px 8px;">
+        <div style="text-align:center;font-size:8pt;color:#555;margin-bottom:8px;">${cfg.receiptWriteHint}</div>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:2px;min-height:30px;">
+            <div style="font-size:8pt;color:#999;">이름</div>
+            <div style="height:16px;"></div>
+          </div>
+          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:2px;min-height:30px;">
+            <div style="font-size:8pt;color:#999;">반</div>
+            <div style="height:16px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  window.print();
+
+  // 인쇄 후 원래 화면 복원
+  document.body.innerHTML = originalBody;
+  document.title = originalTitle;
+  // 이벤트 재연결을 위해 상태 다시 렌더
+  renderReceipt();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-receipt').classList.add('active');
+}
+
+async function btPrint() {
+  closeModal();
+  try {
+    const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb','49535343-fe7d-4ae5-8fa9-9fafd205e455'] });
+    const server = await device.gatt.connect();
+    const services = await server.getPrimaryServices();
+    const enc = new TextEncoder();
+    const r = state.receipt;
+    const pad = n => String(n).padStart(2,'0');
+    const dt = r.datetime;
+    const dateStr = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+
+    const lines = [];
+    const ESC=0x1B, GS=0x1D;
+    const push = (...b) => lines.push(...b);
+    const txt = s => lines.push(...enc.encode(s+'\n'));
+
+    push(ESC,0x40);               // init
+    push(ESC,0x61,0x01);          // center
+    push(ESC,0x45,0x01);          // bold on
+    txt(state.settings.receiptTitle);
+    push(ESC,0x45,0x00);
+    txt(dateStr);
+    txt('------------------------');
+    push(ESC,0x61,0x00);          // left
+    txt('[구매 목록]');
+    r.items.forEach(i => txt(`${i.name}  - ${i.sellerName}`));
+    txt('------------------------');
+    push(ESC,0x61,0x01);
+    txt(state.settings.receiptFooter);
+    txt(state.settings.receiptSchool);
+    txt('');
+    txt('------------------------');
+    push(ESC,0x61,0x00);
+    txt('이름:');
+    txt('');
+    txt('반:');
+    txt('');
+    txt('------------------------');
+    push(GS,0x56,0x41,0x05);      // cut
+
+    const data = new Uint8Array(lines);
+    for (const svc of services) {
+      const chars = await svc.getCharacteristics();
+      for (const ch of chars) {
+        if (ch.properties.write || ch.properties.writeWithoutResponse) {
+          for (let i=0;i<data.length;i+=512) {
+            await ch.writeValue(data.slice(i,i+512));
+            await new Promise(r=>setTimeout(r,60));
+          }
+          showToast('영수증 출력 완료! 🧾'); return;
+        }
+      }
+    }
+    showToast('출력 채널을 찾지 못했어요'); 
+  } catch(e) {
+    if (e.name !== 'NotFoundError') showToast('블루투스 연결 실패');
+  }
+}
+
+// ── ADMIN ──
+function switchTab(id) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'tab-products') renderSellerSelect();
+}
+
+function initEmojiGrids() {
+  document.getElementById('seller-emoji-grid').innerHTML = SELLER_EMOJIS.map(e =>
+    `<div class="emoji-opt ${e===state.selSellerEmoji?'sel':''}" onclick="pickEmoji('seller','${e}')">${e}</div>`).join('');
+  document.getElementById('product-emoji-grid').innerHTML = PRODUCT_EMOJIS.map(e =>
+    `<div class="emoji-opt ${e===state.selProductEmoji?'sel':''}" onclick="pickEmoji('product','${e}')">${e}</div>`).join('');
+}
+function pickEmoji(type, e) {
+  if (type==='seller') state.selSellerEmoji=e;
+  else state.selProductEmoji=e;
+  initEmojiGrids();
+}
+
+function previewPhoto(input, previewId, textId) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById(previewId);
+    img.src = ev.target.result; img.style.display = 'block';
+    document.getElementById(textId).textContent = '사진이 등록됐어요 ✓';
+    if (previewId === 'seller-photo-preview') state.sellerPhotoData = ev.target.result;
+    else state.productPhotoData = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addSeller() {
+  const name = document.getElementById('s-name').value.trim();
+  if (!name) { showToast('이름을 입력해주세요!'); return; }
+  state.sellers.push({ id: Date.now(), name, emoji: state.selSellerEmoji, photo: state.sellerPhotoData || null });
+  document.getElementById('s-name').value = '';
+  document.getElementById('seller-photo-preview').style.display = 'none';
+  document.getElementById('seller-photo-text').textContent = '📷 사진을 탭해서 올려요';
+  state.sellerPhotoData = null;
+  save(); renderAdminSellers(); renderSellerSelect(); showToast(`${name} 등록 완료! ✅`);
+}
+
+function renderAdminSellers() {
+  const list = document.getElementById('seller-manage-list');
+  if (!state.sellers.length) { list.innerHTML = '<div style="text-align:center;color:#AAA;padding:20px;font-family:Jua,sans-serif;">판매자가 없어요</div>'; return; }
+  list.innerHTML = '<div class="section-title" style="margin-top:20px;">등록된 판매자</div>' +
+    state.sellers.map(s => `
+      <div class="manage-item">
+        <div class="manage-thumb">${s.photo ? `<img src="${s.photo}">` : s.emoji}</div>
+        <div class="manage-info">
+          <div class="manage-name">${s.name}</div>
+          <div class="manage-sub">상품 ${state.products.filter(p=>p.sellerId===s.id).length}개</div>
+        </div>
+        <button class="btn-del" onclick="deleteSeller(${s.id})">🗑</button>
+      </div>`).join('');
+}
+
+function deleteSeller(id) {
+  state.sellers = state.sellers.filter(s => s.id !== id);
+  state.products = state.products.filter(p => p.sellerId !== id);
+  state.cart = state.cart.filter(c => c.sellerId !== id);
+  save(); renderAdminSellers(); renderSellerSelect(); showToast('삭제됐어요');
+}
+
+function renderSellerSelect() {
+  const sel = document.getElementById('p-seller');
+  sel.innerHTML = state.sellers.length
+    ? state.sellers.map(s => `<option value="${s.id}">${s.name}</option>`).join('')
+    : '<option value="">판매자를 먼저 등록해주세요</option>';
+}
+
+function addProduct() {
+  const sellerId = parseInt(document.getElementById('p-seller').value);
+  const name = document.getElementById('p-name').value.trim();
+  const desc = document.getElementById('p-desc').value.trim();
+  if (!sellerId || !name) { showToast('판매자와 상품 이름을 입력해주세요!'); return; }
+  state.products.push({ id: Date.now(), sellerId, name, desc, emoji: state.selProductEmoji, photo: state.productPhotoData || null, sold: false });
+  document.getElementById('p-name').value = '';
+  document.getElementById('p-desc').value = '';
+  document.getElementById('product-photo-preview').style.display = 'none';
+  document.getElementById('product-photo-text').textContent = '📷 상품 사진을 올려요';
+  state.productPhotoData = null;
+  save(); renderAdminProducts(); showToast('상품 등록 완료! ✅');
+}
+
+function renderAdminProducts() {
+  const list = document.getElementById('product-manage-list');
+  if (!state.products.length) { list.innerHTML = '<div style="text-align:center;color:#AAA;padding:20px;font-family:Jua,sans-serif;">상품이 없어요</div>'; return; }
+  const grouped = {};
+  state.sellers.forEach(s => grouped[s.id] = []);
+  state.products.forEach(p => { if (grouped[p.sellerId]) grouped[p.sellerId].push(p); });
+
+  list.innerHTML = '<div class="section-title" style="margin-top:20px;">등록된 상품</div>' +
+    state.sellers.map(s => `
+      <div style="font-size:0.8rem;font-weight:700;color:#888;margin:10px 0 5px;">${s.name}의 상품</div>
+      ${(grouped[s.id]||[]).map(p => `
+        <div class="manage-item">
+          <div class="manage-thumb">${p.photo ? `<img src="${p.photo}">` : p.emoji}</div>
+          <div class="manage-info">
+            <div class="manage-name">${p.name}</div>
+            <div class="manage-sub">${p.desc || '설명 없음'}</div>
+          </div>
+          <button class="toggle-sold ${p.sold?'sold':'available'}" onclick="toggleSold(${p.id})">${p.sold?'품절':'판매중'}</button>
+          <button class="btn-del" onclick="deleteProduct(${p.id})">🗑</button>
+        </div>`).join('')}
+    `).join('');
+}
+
+function toggleSold(id) {
+  const p = state.products.find(x => x.id === id);
+  if (p) p.sold = !p.sold;
+  save(); renderAdminProducts(); showToast(p.sold ? '품절로 변경됐어요' : '다시 판매 중이에요');
+}
+
+function deleteProduct(id) {
+  state.products = state.products.filter(p => p.id !== id);
+  state.cart = state.cart.filter(c => c.productId !== id);
+  save(); renderAdminProducts(); showToast('삭제됐어요');
+}
+
+// ── MODAL ──
+let _modalYes = null, _modalNo = null;
+function showModal(emoji, title, desc, onYes, onNo, yesLabel='네!', noLabel='아니요') {
+  document.getElementById('modal-emoji').textContent = emoji;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-desc').textContent = desc;
+  document.getElementById('modal-btns').innerHTML = `
+    <button class="modal-btn no" onclick="closeModal();_modalNo&&_modalNo()">${noLabel}</button>
+    <button class="modal-btn yes" onclick="closeModal();_modalYes&&_modalYes()">${yesLabel}</button>`;
+  _modalYes = onYes; _modalNo = onNo;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── OVERRIDE go for cart render ──
+const _go = go;
+window.go = function(id) {
+  _go(id);
+  if (id === 'screen-cart') renderCart();
+};
+
+// ── ADMIN LOGIN (PIN) ──
+let pinBuffer = '';
+function openAdminLogin() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pw-error').textContent = '';
+  document.getElementById('pw-modal').classList.add('active');
+}
+function closePwModal() {
+  pinBuffer = '';
+  document.getElementById('pw-modal').classList.remove('active');
+}
+function pinInput(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(() => {
+      if (pinBuffer === state.settings.adminPw) {
+        closePwModal();
+        go('screen-admin');
+      } else {
+        document.getElementById('pw-error').textContent = '비밀번호가 틀렸어요 🔒';
+        pinBuffer = '';
+        updatePinDots();
+      }
+    }, 200);
+  }
+}
+function pinClear() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+}
+function updatePinDots() {
+  document.querySelectorAll('.pw-dot').forEach((dot, i) => {
+    dot.classList.toggle('filled', i < pinBuffer.length);
+  });
+}
+
+// ── SETTINGS ──
+function loadSettingsForm() {
+  const s = state.settings;
+  document.getElementById('cfg-market-name').value    = s.marketName;
+  document.getElementById('cfg-market-sub').value     = s.marketSub;
+  document.getElementById('cfg-receipt-title').value  = s.receiptTitle;
+  document.getElementById('cfg-receipt-footer').value = s.receiptFooter;
+  document.getElementById('cfg-receipt-school').value = s.receiptSchool;
+  document.getElementById('cfg-receipt-writehint').value = s.receiptWriteHint;
+  document.getElementById('cfg-pw-old').value = '';
+  document.getElementById('cfg-pw-new').value = '';
+}
+function saveSettings() {
+  const s = state.settings;
+  s.marketName       = document.getElementById('cfg-market-name').value.trim()    || s.marketName;
+  s.marketSub        = document.getElementById('cfg-market-sub').value.trim()     || s.marketSub;
+  s.receiptTitle     = document.getElementById('cfg-receipt-title').value.trim()  || s.receiptTitle;
+  s.receiptFooter    = document.getElementById('cfg-receipt-footer').value.trim() || s.receiptFooter;
+  s.receiptSchool    = document.getElementById('cfg-receipt-school').value.trim() || s.receiptSchool;
+  s.receiptWriteHint = document.getElementById('cfg-receipt-writehint').value.trim() || s.receiptWriteHint;
+
+  // 비밀번호 변경
+  const oldPw = document.getElementById('cfg-pw-old').value;
+  const newPw = document.getElementById('cfg-pw-new').value;
+  if (oldPw || newPw) {
+    if (oldPw !== s.adminPw) { showToast('현재 비밀번호가 틀렸어요!'); return; }
+    if (!/^\d{4}$/.test(newPw)) { showToast('새 비밀번호는 숫자 4자리로 입력해요!'); return; }
+    s.adminPw = newPw;
+    showToast('비밀번호가 변경됐어요 🔒');
+  }
+
+  save();
+  applySettings();
+  showToast('설정이 저장됐어요 💾');
+}
+
+// ── INIT ──
+load();
+initEmojiGrids();
+updateCartUI();
+</script>
+</body>
+</html>
