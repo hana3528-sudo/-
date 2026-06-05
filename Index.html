@@ -998,15 +998,18 @@ function printViaNewTab() {
       </div>
     </div>`;
 
-  window.print();
-
-  // 인쇄 후 원래 화면 복원
-  document.body.innerHTML = originalBody;
-  document.title = originalTitle;
-  // 이벤트 재연결을 위해 상태 다시 렌더
-  renderReceipt();
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-receipt').classList.add('active');
+  // 렌더링 완료 후 인쇄
+  setTimeout(() => {
+    window.print();
+    // 인쇄 후 원래 화면 복원
+    setTimeout(() => {
+      document.body.innerHTML = originalBody;
+      document.title = originalTitle;
+      renderReceipt();
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-receipt').classList.add('active');
+    }, 500);
+  }, 600);
 }
 
 async function btPrint() {
