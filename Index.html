@@ -950,10 +950,10 @@ async function printReceipt() {
     });
     if (useBT) { await btPrint(); return; }
   }
-  printViaNewTab();
+  printViaIframe();
 }
 
-function printViaNewTab() {
+function printViaIframe() {
   const r = state.receipt;
   const cfg = state.settings;
   if (!r) return;
@@ -963,53 +963,62 @@ function printViaNewTab() {
   const dateStr = `${dt.getFullYear()}.${pad(dt.getMonth()+1)}.${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
 
   const itemRows = r.items.map(i =>
-    `<div style="display:flex;justify-content:space-between;font-size:12pt;padding:3px 0;">
-      <span>${i.name}</span><span style="color:#666;">${i.sellerName}</span>
-    </div>`).join('');
+    `<tr><td>${i.name}</td><td style="text-align:right;color:#666;">${i.sellerName}</td></tr>`
+  ).join('');
 
-  // 현재 페이지 body를 인쇄용으로 교체 후 print, 그다음 복원
-  const originalBody = document.body.innerHTML;
-  const originalTitle = document.title;
-
-  document.title = '영수증';
-  document.body.innerHTML = `
-    <div style="font-family:'Courier New',monospace;font-size:11pt;color:black;background:white;
-                max-width:80mm;margin:0;padding:4mm;line-height:1.6;">
-      <div style="text-align:center;font-size:15pt;font-weight:700;">${cfg.receiptTitle}</div>
-      <div style="text-align:center;font-size:9pt;color:#555;margin-top:2px;">${dateStr}</div>
-      <div style="border-top:1.5px dashed #000;margin:7px 0;"></div>
-      <div style="font-size:9pt;color:#555;margin-bottom:4px;">구매 목록</div>
-      ${itemRows}
-      <div style="border-top:1.5px dashed #000;margin:7px 0;"></div>
-      <div style="text-align:center;font-size:10pt;">${cfg.receiptFooter}</div>
-      <div style="text-align:center;font-size:9pt;color:#777;">${cfg.receiptSchool}</div>
-      <div style="border:1.5px solid #000;margin-top:12px;border-radius:3px;padding:6px 8px;">
-        <div style="text-align:center;font-size:8pt;color:#555;margin-bottom:8px;">${cfg.receiptWriteHint}</div>
-        <div style="display:flex;gap:6px;">
-          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:2px;min-height:30px;">
-            <div style="font-size:8pt;color:#999;">이름</div>
-            <div style="height:16px;"></div>
-          </div>
-          <div style="flex:1;border:1px solid #999;padding:4px 6px;border-radius:2px;min-height:30px;">
-            <div style="font-size:8pt;color:#999;">반</div>
-            <div style="height:16px;"></div>
-          </div>
-        </div>
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Courier New',monospace; font-size:11pt; color:#000; background:#fff; padding:8mm; }
+    h1 { text-align:center; font-size:14pt; margin-bottom:3px; }
+    .date { text-align:center; font-size:8pt; color:#555; margin-bottom:8px; }
+    hr { border:none; border-top:1.5px dashed #000; margin:7px 0; }
+    table { width:100%; border-collapse:collapse; font-size:10pt; }
+    td { padding:2px 0; }
+    .footer { text-align:center; font-size:9pt; margin-top:4px; }
+    .school { text-align:center; font-size:8pt; color:#666; }
+    .write-box { border:1.5px solid #000; margin-top:12px; padding:6px 8px; border-radius:3px; }
+    .write-hint { text-align:center; font-size:8pt; color:#555; margin-bottom:6px; }
+    .write-row { display:flex; gap:6px; }
+    .write-field { flex:1; border:1px solid #999; padding:4px 6px; min-height:28px; }
+    .write-label { font-size:7pt; color:#999; }
+  </style>
+  </head><body>
+    <h1>${cfg.receiptTitle}</h1>
+    <div class="date">${dateStr}</div>
+    <hr>
+    <table>${itemRows}</table>
+    <hr>
+    <div class="footer">${cfg.receiptFooter}</div>
+    <div class="school">${cfg.receiptSchool}</div>
+    <div class="write-box">
+      <div class="write-hint">${cfg.receiptWriteHint}</div>
+      <div class="write-row">
+        <div class="write-field"><div class="write-label">이름</div></div>
+        <div class="write-field"><div class="write-label">반</div></div>
       </div>
-    </div>`;
+    </div>
+  </body></html>`;
 
-  // 렌더링 완료 후 인쇄
-  setTimeout(() => {
-    window.print();
-    // 인쇄 후 원래 화면 복원
+  // iframe 생성해서 인쇄
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;background:white;';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  iframe.onload = function() {
     setTimeout(() => {
-      document.body.innerHTML = originalBody;
-      document.title = originalTitle;
-      renderReceipt();
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-receipt').classList.add('active');
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
     }, 500);
-  }, 600);
+  };
 }
 
 async function btPrint() {
