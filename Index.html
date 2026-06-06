@@ -968,36 +968,53 @@ function printViaIframe() {
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
+    @page { margin: 5mm; size: A4 portrait; }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Courier New',monospace; font-size:11pt; color:#000; background:#fff; padding:8mm; }
-    h1 { text-align:center; font-size:14pt; margin-bottom:3px; }
-    .date { text-align:center; font-size:8pt; color:#555; margin-bottom:8px; }
-    hr { border:none; border-top:1.5px dashed #000; margin:7px 0; }
-    table { width:100%; border-collapse:collapse; font-size:10pt; }
-    td { padding:2px 0; }
-    .footer { text-align:center; font-size:9pt; margin-top:4px; }
-    .school { text-align:center; font-size:8pt; color:#666; }
-    .write-box { border:1.5px solid #000; margin-top:12px; padding:6px 8px; border-radius:3px; }
-    .write-hint { text-align:center; font-size:8pt; color:#555; margin-bottom:6px; }
-    .write-row { display:flex; gap:6px; }
-    .write-field { flex:1; border:1px solid #999; padding:4px 6px; min-height:28px; }
-    .write-label { font-size:7pt; color:#999; }
+    body { font-family:'Courier New',monospace; background:#fff; color:#000; }
+    .page { width:190mm; display:flex; flex-direction:column; gap:0; }
+    .receipt {
+      width:190mm; height:138mm;
+      padding:8mm 10mm;
+      border-bottom: 2px dashed #999;
+      display:flex; flex-direction:column;
+    }
+    .receipt:last-child { border-bottom:none; }
+    h1 { text-align:center; font-size:22pt; font-weight:700; margin-bottom:3px; }
+    .date { text-align:center; font-size:14pt; color:#555; margin-bottom:6px; }
+    hr { border:none; border-top:2px dashed #000; margin:5px 0; }
+    table { width:100%; border-collapse:collapse; }
+    td { font-size:20pt; padding:3px 0; }
+    td:last-child { text-align:right; color:#555; }
+    .footer { text-align:center; font-size:18pt; margin-top:4px; }
+    .school { text-align:center; font-size:16pt; color:#666; }
+    .write-box { border:2px solid #000; margin-top:8px; padding:6px 8px; border-radius:4px; flex:1; display:flex; flex-direction:column; }
+    .write-hint { text-align:center; font-size:16pt; color:#555; margin-bottom:6px; }
+    .write-row { display:flex; gap:8px; flex:1; }
+    .write-field { flex:1; border:2px solid #666; padding:6px 10px; border-radius:4px; display:flex; flex-direction:column; }
+    .write-label { font-size:16pt; color:#999; margin-bottom:4px; }
+    .write-space { flex:1; }
+    .cut-hint { text-align:center; font-size:12pt; color:#aaa; padding:2mm 0; letter-spacing:3px; }
   </style>
   </head><body>
-    <h1>${cfg.receiptTitle}</h1>
-    <div class="date">${dateStr}</div>
-    <hr>
-    <table>${itemRows}</table>
-    <hr>
-    <div class="footer">${cfg.receiptFooter}</div>
-    <div class="school">${cfg.receiptSchool}</div>
-    <div class="write-box">
-      <div class="write-hint">${cfg.receiptWriteHint}</div>
-      <div class="write-row">
-        <div class="write-field"><div class="write-label">이름</div></div>
-        <div class="write-field"><div class="write-label">반</div></div>
+  <div class="page">
+    ${['판매자용 🏪', '구매자용 🛍️'].map(label => `
+    <div class="receipt">
+      <h1>${cfg.receiptTitle}</h1>
+      <div class="date">${dateStr} &nbsp;|&nbsp; ${label}</div>
+      <hr>
+      <table>${itemRows}</table>
+      <hr>
+      <div class="footer">${cfg.receiptFooter}</div>
+      <div class="school">${cfg.receiptSchool}</div>
+      <div class="write-box">
+        <div class="write-hint">${cfg.receiptWriteHint}</div>
+        <div class="write-row">
+          <div class="write-field"><div class="write-label">이름</div><div class="write-space"></div></div>
+          <div class="write-field"><div class="write-label">반</div><div class="write-space"></div></div>
+        </div>
       </div>
-    </div>
+    </div>`).join('<div class="cut-hint">✂ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ✂</div>')}
+  </div>
   </body></html>`;
 
   // iframe 생성해서 인쇄
